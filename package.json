@@ -1,0 +1,29 @@
+{
+  "name": "dashboard-suite",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:generate": "pnpm --filter @dashboard/api prisma generate",
+    "db:push": "pnpm --filter @dashboard/api prisma db push",
+    "db:seed": "pnpm --filter @dashboard/api tsx prisma/seed.ts",
+    "db:migrate": "pnpm --filter @dashboard/api prisma migrate dev",
+    "postinstall": "prisma generate"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "prisma": "5.22.0",
+    "typescript": "^5.4.2"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(npm install:*)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(pnpm config set:*)",
+      "Bash(npx prisma generate)",
+      "Bash(npx prisma generate:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm exec prisma generate:*)",
+      "Bash(npx prisma@5.22.0 generate:*)",
+      "Bash(npm pkg set:*)",
+      "Bash(prisma generate:*)",
+      "Bash(set PRISMA_SKIP_POSTINSTALL_GENERATE=true:*)",
+      "Bash(npm config set:*)",
+      "Bash(apps/api/node_modules/.bin/prisma generate:*)",
+      "Bash(node apps/api/node_modules/prisma/build/index.js generate:*)"
+    ]
+  }
+}

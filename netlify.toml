@@ -1,0 +1,12 @@
+[build]
+  command = "cd apps/web && npm run build"
+  publish = "apps/web/dist"
+  base = "apps/web"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

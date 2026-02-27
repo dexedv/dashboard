@@ -115,7 +115,9 @@ export default function SetupWizard() {
       // Ignore - might be local without API
     }
 
-    setStep('admin');
+    // Skip admin creation - only admin can create users
+    localStorage.setItem('setupComplete', 'true');
+    setStep('complete');
   };
 
   const createAdmin = async () => {

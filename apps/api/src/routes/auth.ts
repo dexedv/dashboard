@@ -144,21 +144,31 @@ export async function authRoutes(fastify: FastifyInstance) {
     return { success: true, data: {} };
   });
 
-  // Register - allows creating first admin user if no users exist
+  // Register - only allows creating first admin user if no users exist
   fastify.post('/register', async (request: FastifyRequest, reply: FastifyReply) => {
     const body = createUserSchema.parse(request.body);
+
+    // Check if users already exist
+    const userCount = await prisma.user.count();
+
+    // If users already exist, registration is disabled
+    if (userCount > 0) {
+      return reply.status(403).send({
+        success: false,
+        error: 'Registrierung deaktiviert. Bitte kontaktieren Sie den Administrator.'
+      });
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { email: body.email },
     });
 
     if (existingUser) {
-      return reply.status(400).send({ success: false, error: 'Email already exists' });
+      return reply.status(400).send({ success: false, error: 'Email bereits vergeben' });
     }
 
-    // Check if this is the first user (can be admin)
-    const userCount = await prisma.user.count();
-    const role = userCount === 0 ? 'ADMIN' : (body.role || 'USER');
+    // First user becomes ADMIN
+    const role = 'ADMIN';
 
     // Get next employee number
     const lastUser = await prisma.user.findFirst({

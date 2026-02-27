@@ -105,7 +105,7 @@ server.get('/health', async () => {
     timestamp: new Date().toISOString(),
     services: {
       api: 'ok',
-      database: 'error' // TEST: force error for red indicator
+      database: dbStatus
     }
   };
 });

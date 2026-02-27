@@ -15,6 +15,12 @@ interface SystemStatus {
   version: string;
 }
 
+interface UpdateInfo {
+  available: boolean;
+  version?: string;
+  checking: boolean;
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +31,7 @@ export default function LoginPage() {
   const [systemStatusOpen, setSystemStatusOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ available: false, checking: false });
   const { login, register, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -51,6 +58,23 @@ export default function LoginPage() {
       setSystemStatus({ api: 'error', database: 'error', version: '1.0.0' });
     } finally {
       setStatusLoading(false);
+    }
+  };
+
+  // Check for updates
+  const checkForUpdates = async () => {
+    setUpdateInfo(prev => ({ ...prev, checking: true }));
+    try {
+      const { check } = await import('@tauri-apps/plugin-updater');
+      const update = await check();
+      if (update) {
+        setUpdateInfo({ available: true, version: update.version, checking: false });
+      } else {
+        setUpdateInfo({ available: false, checking: false });
+      }
+    } catch (e) {
+      console.log('Update check not available (running in browser or dev mode)');
+      setUpdateInfo({ available: false, checking: false });
     }
   };
 
@@ -248,8 +272,40 @@ export default function LoginPage() {
                           </div>
                           <div className="flex items-center justify-between pt-2 border-t">
                             <span className="text-xs text-muted-foreground">Updates</span>
-                            <span className="text-xs text-green-500">Aktuell</span>
+                            {updateInfo.checking ? (
+                              <span className="text-xs text-muted-foreground">Prüfe...</span>
+                            ) : updateInfo.available ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 text-xs"
+                                onClick={async () => {
+                                  try {
+                                    const { check, install } = await import('@tauri-apps/plugin-updater');
+                                    const update = await check();
+                                    if (update) {
+                                      await update.downloadAndInstall();
+                                    }
+                                  } catch (e) {
+                                    console.log('Update install failed', e);
+                                  }
+                                }}
+                              >
+                                Update v{updateInfo.version}
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-green-500">Aktuell</span>
+                            )}
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full mt-2 text-xs"
+                            onClick={checkForUpdates}
+                            disabled={updateInfo.checking}
+                          >
+                            {updateInfo.checking ? 'Prüfe...' : 'Nach Updates suchen'}
+                          </Button>
                         </div>
                       ) : (
                         <div className="text-xs text-red-500">Keine Verbindung</div>

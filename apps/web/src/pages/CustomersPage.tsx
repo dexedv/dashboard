@@ -83,11 +83,14 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Kunden</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Kunden</h1>
+          <p className="text-muted-foreground mt-1">Verwalten Sie Ihre Kunden und Aufträge</p>
+        </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="shadow-lg shadow-primary/25">
               <Plus className="h-4 w-4 mr-2" />
               Kunde hinzufügen
             </Button>
@@ -130,7 +133,7 @@ export default function CustomersPage() {
               <div className="space-y-2">
                 <Label>Notizen</Label>
                 <textarea
-                  className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="w-full min-h-[80px] rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-primary/50 transition-all"
                   value={newCustomer.notes}
                   onChange={(e) => setNewCustomer({ ...newCustomer, notes: e.target.value })}
                 />
@@ -147,7 +150,7 @@ export default function CustomersPage() {
           placeholder="Kunden suchen..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
+          className="pl-10"
         />
       </div>
 
@@ -161,14 +164,14 @@ export default function CustomersPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {customers.map((customer: Customer) => (
-            <Card key={customer.id} className="hover:bg-accent/50 transition-colors">
+            <Card key={customer.id} className="card-hover">
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg">
-                  <Link to={`/app/customers/${customer.id}`} className="hover:underline">
+                <CardTitle className="text-lg font-semibold">
+                  <Link to={`/app/customers/${customer.id}`} className="hover:text-primary transition-colors">
                     {customer.name}
                   </Link>
                 </CardTitle>
-                <Link to={`/app/customers/${customer.id}`}>
+                <Link to={`/app/customers/${customer.id}`} className="p-1 rounded-lg hover:bg-primary/10 transition-colors">
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </Link>
               </CardHeader>

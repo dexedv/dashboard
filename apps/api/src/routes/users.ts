@@ -20,7 +20,17 @@ export async function userRoutes(fastify: FastifyInstance) {
 
   // List all users (admin only)
   fastify.get('/', { preHandler: [adminMiddleware] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { q } = request.query as { q?: string };
+
+    const where = q ? {
+      OR: [
+        { name: { contains: q } },
+        { email: { contains: q } },
+      ],
+    } : {};
+
     const users = await prisma.user.findMany({
+      where,
       select: {
         id: true,
         email: true,

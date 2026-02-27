@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { userRoleColors } from '@dashboard/shared/zod';
-import { Mail, Phone, Calendar, Shield, User } from 'lucide-react';
+import { Mail, Phone, Calendar, Shield, User, Search } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -13,6 +15,7 @@ interface UserData {
   email: string;
   name: string;
   role: string;
+  position?: string;
   active: boolean;
   phone: string | null;
   birthday: string | null;
@@ -22,10 +25,11 @@ interface UserData {
 
 export default function EmployeesPage() {
   const { user: currentUser } = useAuth();
+  const [search, setSearch] = useState('');
 
   const { data: usersResponse, isLoading } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => api.getUsers(),
+    queryKey: ['users', search],
+    queryFn: () => api.getEmployees({ q: search || undefined }),
   });
 
   const users = usersResponse?.data || [];
@@ -54,7 +58,22 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Mitarbeiter</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Mitarbeiter</h1>
+          <p className="text-muted-foreground mt-1">Verwalten Sie Ihre Teammitglieder</p>
+        </div>
+      </div>
+
+      <div className="relative max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Mitarbeiter suchen..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-10"
+        />
+      </div>
 
       {isLoading ? (
         <div className="text-center py-8 text-muted-foreground">Laden...</div>

@@ -34,9 +34,13 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
       ...options.headers,
     };
+
+    // Only set Content-Type if there's a body
+    if (options.body) {
+      (headers as Record<string, string>)['Content-Type'] = 'application/json';
+    }
 
     if (this.accessToken) {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${this.accessToken}`;
@@ -193,6 +197,20 @@ class ApiClient {
       email: string;
       name: string;
     }>>('/users/with-email');
+  }
+
+  async getEmployees(params?: { q?: string }) {
+    const query = params?.q ? `?q=${encodeURIComponent(params.q)}` : '';
+    return this.request<Array<{
+      id: string;
+      email: string;
+      name: string;
+      role: string;
+      active: boolean;
+      phone: string | null;
+      birthday: string | null;
+      employeeNumber: number;
+    }>>(`/users${query}`);
   }
 
   async createUser(data: { email: string; password: string; name: string; role: string; phone?: string; birthday?: string }) {
@@ -383,11 +401,12 @@ class ApiClient {
   }
 
   // Orders
-  async getOrders(params?: { status?: string; customerId?: string; dueSoon?: string }) {
+  async getOrders(params?: { status?: string; customerId?: string; dueSoon?: string; q?: string }) {
     const searchParams = new URLSearchParams();
     if (params?.status) searchParams.set('status', params.status);
     if (params?.customerId) searchParams.set('customerId', params.customerId);
     if (params?.dueSoon) searchParams.set('dueSoon', params.dueSoon);
+    if (params?.q) searchParams.set('q', params.q);
     const query = searchParams.toString();
     return this.request<Array<{
       id: string;

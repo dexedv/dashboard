@@ -88,39 +88,44 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Mobile sidebar */}
       <div className="lg:hidden">
         {sidebarOpen && (
-          <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
         )}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform lg:hidden',
+            'fixed inset-y-0 left-0 z-50 w-72 bg-card/95 backdrop-blur-xl border-r shadow-2xl transform transition-transform lg:hidden gradient-mesh',
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
-          <div className="flex items-center justify-between p-4 border-b">
-            <span className="text-xl font-bold">Dashboard</span>
+          <div className="flex items-center justify-between p-5 border-b/50">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
+                <LayoutDashboard className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Dashboard</span>
+            </div>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={toggleTheme}>
+              <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-lg">
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="rounded-lg">
                 <X className="h-5 w-5" />
               </Button>
             </div>
           </div>
-          <nav className="p-4 space-y-2">
+          <nav className="p-4 space-y-1.5">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                  'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                   location.pathname === item.href
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
                 )}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -129,14 +134,14 @@ export default function AppLayout() {
               </Link>
             ))}
             {user?.role === 'ADMIN' && (
-              <div className="space-y-1">
+              <div className="pt-4 mt-4 border-t space-y-1.5">
                 <Link
                   to="/app/admin/users"
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                     location.pathname === '/app/admin/users'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                      : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -146,10 +151,10 @@ export default function AppLayout() {
                 <Link
                   to="/app/admin/permissions"
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                     location.pathname === '/app/admin/permissions'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                      : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -163,21 +168,23 @@ export default function AppLayout() {
       </div>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col lg:border-r lg:bg-card">
-        <div className="flex h-16 items-center border-b px-6">
-          <LayoutDashboard className="h-6 w-6 mr-2" />
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col lg:border-r lg:bg-card/80 lg:backdrop-blur-xl">
+        <div className="flex h-20 items-center gap-3 border-b/50 px-6">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
+            <LayoutDashboard className="h-6 w-6 text-white" />
+          </div>
           <span className="text-xl font-bold">Dashboard</span>
         </div>
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1.5">
           {navigation.map((item) => (
             <Link
               key={item.name}
               to={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                 location.pathname === item.href
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -185,14 +192,14 @@ export default function AppLayout() {
             </Link>
           ))}
           {user?.role === 'ADMIN' && (
-            <div className="space-y-1">
+            <div className="pt-4 mt-4 border-t space-y-1.5">
               <Link
                 to="/app/admin/users"
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                  'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                   location.pathname === '/app/admin/users'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
                 )}
               >
                 <Settings className="h-5 w-5" />
@@ -201,10 +208,10 @@ export default function AppLayout() {
               <Link
                 to="/app/admin/permissions"
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                  'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                   location.pathname === '/app/admin/permissions'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
                 )}
               >
                 <Shield className="h-5 w-5" />
@@ -213,51 +220,52 @@ export default function AppLayout() {
             </div>
           )}
         </nav>
-        <div className="border-t p-4 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
+        <div className="border-t/50 p-4 space-y-4">
+          <div className="flex items-center gap-3 p-2 rounded-xl bg-muted/30">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold shadow-lg">
               {user?.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.name}</p>
+              <p className="text-sm font-semibold truncate">{user?.name}</p>
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={toggleTheme} className="flex-1" title="Design wechseln">
+          <div className="grid grid-cols-3 gap-2">
+            <Button variant="outline" size="icon" onClick={toggleTheme} className="rounded-xl" title="Design wechseln">
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" size="icon" onClick={openProfile} className="flex-1" title="Profil bearbeiten">
+            <Button variant="outline" size="icon" onClick={openProfile} className="rounded-xl" title="Profil bearbeiten">
               <User className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="flex-1 justify-start" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Abmelden
+            <Button variant="outline" className="rounded-xl justify-center" onClick={handleLogout} title="Abmelden">
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </aside>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="lg:pl-72">
         {/* Mobile header */}
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b bg-background px-4 lg:hidden">
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+        <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b/50 bg-background/80 backdrop-blur-xl px-4 lg:hidden">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="rounded-lg">
             <Menu className="h-5 w-5" />
           </Button>
           <span className="font-bold">Dashboard</span>
           <div className="flex gap-1 ml-auto">
-            <Button variant="ghost" size="icon" onClick={openProfile}>
+            <Button variant="ghost" size="icon" onClick={openProfile} className="rounded-lg">
               <User className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-lg">
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
           </div>
         </header>
 
         <main className="p-4 lg:p-8">
-          <Outlet />
+          <div className="page-enter">
+            <Outlet />
+          </div>
         </main>
       </div>
 

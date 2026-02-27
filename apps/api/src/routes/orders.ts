@@ -12,10 +12,11 @@ export async function orderRoutes(fastify: FastifyInstance) {
 
   // List orders with filters
   fastify.get('/', { preHandler: [authMiddleware] }, async (request: FastifyRequest, reply: FastifyReply) => {
-    const { status, customerId, dueSoon } = request.query as {
+    const { status, customerId, dueSoon, q } = request.query as {
       status?: string;
       customerId?: string;
       dueSoon?: string;
+      q?: string;
     };
 
     const isAdmin = request.user.role === 'ADMIN';
@@ -50,6 +51,13 @@ export async function orderRoutes(fastify: FastifyInstance) {
         lte: futureDate,
         gte: new Date(),
       };
+    }
+
+    if (q) {
+      where.OR = [
+        { title: { contains: q } },
+        { description: { contains: q } },
+      ];
     }
 
     const orders = await prisma.order.findMany({

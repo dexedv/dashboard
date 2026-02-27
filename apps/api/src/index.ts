@@ -131,19 +131,19 @@ server.get('/api/system/status', {
   };
 });
 
-// Register routes
-await server.register(authRoutes, { prefix: '/auth' });
-await server.register(userRoutes, { prefix: '/users' });
-await server.register(noteRoutes, { prefix: '/notes' });
-await server.register(calendarRoutes, { prefix: '/calendar' });
-await server.register(customerRoutes, { prefix: '/customers' });
-await server.register(orderRoutes, { prefix: '/orders' });
-await server.register(fileRoutes, { prefix: '/files' });
-await server.register(spotifyRoutes, { prefix: '/spotify' });
-await server.register(emailRoutes, { prefix: '/email' });
-await server.register(permissionRoutes, { prefix: '/permissions' });
-await server.register(whatsappRoutes, { prefix: '/whatsapp' });
-await server.register(licenseRoutes, { prefix: '/license' });
+// Register routes with /api prefix
+await server.register(authRoutes, { prefix: '/api/auth' });
+await server.register(userRoutes, { prefix: '/api/users' });
+await server.register(noteRoutes, { prefix: '/api/notes' });
+await server.register(calendarRoutes, { prefix: '/api/calendar' });
+await server.register(customerRoutes, { prefix: '/api/customers' });
+await server.register(orderRoutes, { prefix: '/api/orders' });
+await server.register(fileRoutes, { prefix: '/api/files' });
+await server.register(spotifyRoutes, { prefix: '/api/spotify' });
+await server.register(emailRoutes, { prefix: '/api/email' });
+await server.register(permissionRoutes, { prefix: '/api/permissions' });
+await server.register(whatsappRoutes, { prefix: '/api/whatsapp' });
+await server.register(licenseRoutes, { prefix: '/api/license' });
 
 // Start server
 const start = async () => {

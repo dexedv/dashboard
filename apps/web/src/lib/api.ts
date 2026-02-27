@@ -1,5 +1,7 @@
-// Use localhost for local development
-export const API_BASE = 'http://localhost:3001';
+// Use localhost for local development, Render URL for production
+export const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3001'
+  : 'https://dashboard-iio4.onrender.com';
 
 interface ApiResponse<T> {
   success: boolean;

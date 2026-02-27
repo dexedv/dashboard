@@ -2,7 +2,7 @@ services:
   - type: web
     name: dashboard-api
     env: node
-    buildCommand: npm install -g pnpm && cd apps/api && pnpm install && pnpm prisma generate
+    buildCommand: npm install -g pnpm && cd apps/api && pnpm install --no-frozen-lockfile && pnpm prisma generate
     startCommand: cd apps/api && pnpm tsx src/index.ts
     envVars:
       - key: DATABASE_URL

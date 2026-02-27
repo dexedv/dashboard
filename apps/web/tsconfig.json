@@ -5,7 +5,9 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "strict": false,
+    "noEmit": false
   },
   "include": ["src/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]

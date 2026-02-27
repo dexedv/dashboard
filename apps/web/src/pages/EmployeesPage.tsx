@@ -20,7 +20,7 @@ interface UserData {
   phone: string | null;
   birthday: string | null;
   employeeNumber: number;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export default function EmployeesPage() {

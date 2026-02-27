@@ -99,7 +99,7 @@ export default function EmployeeDetailPage() {
 
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground">
-              Erstellt am: {formatDate(user.createdAt)}
+              Erstellt am: {user.createdAt ? formatDate(user.createdAt) : '-'}
             </p>
             <p className={`text-sm ${user.active ? 'text-green-600' : 'text-red-600'}`}>
               Status: {user.active ? 'Aktiv' : 'Inaktiv'}

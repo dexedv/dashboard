@@ -2,9 +2,11 @@
   "name": "dashboard-suite",
   "version": "1.0.0",
   "private": true,
+  "main": "apps/api/dist/index.js",
   "scripts": {
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm -r build",
+    "start": "node apps/api/dist/index.js",
     "lint": "pnpm -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "db:generate": "pnpm --filter @dashboard/api prisma generate",

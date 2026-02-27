@@ -1,11 +1,36 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import os from 'os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load .env file first (for local development)
 const envPath = path.resolve(__dirname, '../../../.env');
 console.log('Loading env from:', envPath);
 dotenv.config({ path: envPath });
+
+// Check for database config file (set by desktop app)
+const appDataDir = path.join(os.homedir(), 'DashboardSuite');
+const configPath = path.join(appDataDir, 'db-config.json');
+
+let dbUrl = process.env.DATABASE_URL;
+
+if (fs.existsSync(configPath)) {
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    if (config.databaseUrl) {
+      dbUrl = config.databaseUrl;
+      console.log('Using database from config file:', config.type);
+    }
+  } catch (e) {
+    console.error('Error reading config file:', e);
+  }
+} else {
+  console.log('No config file found, using default DATABASE_URL');
+}
+
+process.env.DATABASE_URL = dbUrl;
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
@@ -112,6 +137,61 @@ server.get('/health', async () => {
     },
     version: '1.0.2'
   };
+});
+
+// Database config endpoint (save to file for desktop app)
+server.post('/api/system/db-config', async (request) => {
+  const { type, host, port, database, username, password } = request.body as {
+    type: string;
+    host?: string;
+    port?: number;
+    database?: string;
+    username?: string;
+    password?: string;
+  };
+
+  let databaseUrl = '';
+
+  if (type === 'sqlite') {
+    databaseUrl = 'file:./data/dashboard.db';
+  } else if (type === 'mysql') {
+    databaseUrl = `mysql://${username}:${password}@${host}:${port || 3306}/${database}`;
+  } else if (type === 'postgresql') {
+    databaseUrl = `postgresql://${username}:${password}@${host}:${port || 5432}/${database}`;
+  }
+
+  // Save config to file
+  const appDataDir = path.join(os.homedir(), 'DashboardSuite');
+  if (!fs.existsSync(appDataDir)) {
+    fs.mkdirSync(appDataDir, { recursive: true });
+  }
+
+  const config = {
+    type,
+    databaseUrl,
+    host,
+    port,
+    database,
+    username,
+    updatedAt: new Date().toISOString()
+  };
+
+  fs.writeFileSync(path.join(appDataDir, 'db-config.json'), JSON.stringify(config, null, 2));
+
+  return { success: true, message: 'Database configuration saved' };
+});
+
+// Get current database config
+server.get('/api/system/db-config', async () => {
+  const configPath = path.join(os.homedir(), 'DashboardSuite', 'db-config.json');
+
+  if (fs.existsSync(configPath)) {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    // Don't return the full URL, just the type
+    return { type: config.type };
+  }
+
+  return { type: 'default' };
 });
 
 // System status endpoint

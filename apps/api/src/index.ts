@@ -43,7 +43,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Register plugins
 await server.register(cors, {
-  origin: process.env.WEB_ORIGIN || 'http://localhost:5173',
+  origin: true,
   credentials: true,
 });
 
@@ -94,7 +94,37 @@ server.decorate('requireAdmin', async function (request: any, reply: any) {
 
 // Health check
 server.get('/health', async () => {
-  return { status: 'ok', timestamp: new Date().toISOString() };
+  let dbStatus = 'ok';
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch {
+    dbStatus = 'error';
+  }
+  return {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    services: {
+      api: 'ok',
+      database: 'error' // TEST: force error for red indicator
+    }
+  };
+});
+
+// System status endpoint
+server.get('/api/system/status', {
+  preHandler: [server.authenticate]
+}, async () => {
+  let dbStatus = 'ok';
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch {
+    dbStatus = 'error';
+  }
+  return {
+    api: 'ok',
+    database: dbStatus,
+    version: '1.0.0'
+  };
 });
 
 // Register routes

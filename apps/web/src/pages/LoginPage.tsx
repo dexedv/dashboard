@@ -36,12 +36,16 @@ export default function LoginPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Load saved email on mount
+  // Load saved credentials on mount
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedPassword = localStorage.getItem('rememberedPassword');
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
+    }
+    if (savedPassword) {
+      setPassword(savedPassword);
     }
     // Fetch system status on mount
     fetchSystemStatus();
@@ -101,11 +105,13 @@ export default function LoginPage() {
         await login(email, password);
       }
 
-      // Remember email if checkbox is checked
+      // Remember credentials if checkbox is checked
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
+        localStorage.setItem('rememberedPassword', password);
       } else {
         localStorage.removeItem('rememberedEmail');
+        localStorage.removeItem('rememberedPassword');
       }
 
       navigate('/app');
@@ -178,7 +184,6 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                   minLength={isRegisterMode ? 10 : 1}
                   className="h-11"
                 />
@@ -189,12 +194,23 @@ export default function LoginPage() {
 
               {!isRegisterMode && (
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                  />
-                  <Label htmlFor="remember" className="text-sm cursor-pointer">
+                  <button
+                    type="button"
+                    onClick={() => setRememberMe(!rememberMe)}
+                    className="relative w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center"
+                    style={{
+                      borderColor: rememberMe ? '#22c55e' : 'hsl(var(--border))',
+                      backgroundColor: rememberMe ? '#22c55e' : 'transparent'
+                    }}
+                  >
+                    {rememberMe && (
+                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                    )}
+                  </button>
+                  <Label
+                    onClick={() => setRememberMe(!rememberMe)}
+                    className="text-sm cursor-pointer"
+                  >
                     Angemeldet bleiben
                   </Label>
                 </div>
@@ -219,6 +235,24 @@ export default function LoginPage() {
                   : 'Noch kein Konto? Registrieren'
                 }
               </Button>
+            </div>
+
+            {/* Reset Setup - for admin to reconfigure */}
+            <div className="mt-4 pt-4 border-t text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('Setup-Wizard zurücksetzen? Alle lokalen Einstellungen werden gelöscht.')) {
+                    localStorage.removeItem('setupComplete');
+                    localStorage.removeItem('dbConfig');
+                    localStorage.removeItem('licenseKey');
+                    window.location.href = '/setup';
+                  }
+                }}
+                className="text-xs text-muted-foreground hover:text-red-500 underline"
+              >
+                Setup zurücksetzen
+              </button>
             </div>
 
             {!isRegisterMode && (

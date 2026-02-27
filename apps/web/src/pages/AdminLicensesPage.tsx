@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { Plus, Key, Copy, Calendar, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Key, Copy, Calendar, Users, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default function AdminLicensesPage() {
@@ -26,7 +26,7 @@ export default function AdminLicensesPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: licenseStatus } = useQuery({
+  const { data: licenseStatus, isLoading } = useQuery({
     queryKey: ['licenseStatus'],
     queryFn: () => api.getLicenseStatus(),
     enabled: currentUser?.role === 'ADMIN',
@@ -43,7 +43,7 @@ export default function AdminLicensesPage() {
     onSuccess: (data) => {
       setGeneratedKey(data.licenseKey);
       queryClient.invalidateQueries({ queryKey: ['licenseStatus'] });
-      toast({ title: 'Lizenzschlüssel generiert' });
+      toast({ title: 'Lizenzschlüssel generiert und gespeichert' });
     },
     onError: () => {
       toast({ variant: 'destructive', title: 'Fehler bei der Generierung' });
@@ -75,48 +75,75 @@ export default function AdminLicensesPage() {
         <h1 className="text-3xl font-bold">Lizenzverwaltung</h1>
       </div>
 
-      <Tabs defaultValue="status" className="space-y-4">
+      <Tabs defaultValue="list" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="status">Aktueller Status</TabsTrigger>
+          <TabsTrigger value="list">Alle Lizenzen</TabsTrigger>
           <TabsTrigger value="generate">Neue Lizenz erstellen</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="status">
+        <TabsContent value="list">
           <Card>
             <CardHeader>
-              <CardTitle>Aktive Lizenz</CardTitle>
-              <CardDescription>Informationen zur aktuellen Lizenz</CardDescription>
+              <CardTitle>Alle Lizenzen</CardTitle>
+              <CardDescription>Übersicht aller erstellten Lizenzen</CardDescription>
             </CardHeader>
             <CardContent>
-              {licenseStatus?.active ? (
+              {isLoading ? (
+                <p className="text-muted-foreground">Laden...</p>
+              ) : licenseStatus?.licenses && licenseStatus.licenses.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span className="font-medium text-green-600">Lizenz aktiv</span>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <Label className="text-muted-foreground">Kunden-ID</Label>
-                      <p className="font-medium">{licenseStatus.customerId}</p>
+                  {licenseStatus.licenses.map((license) => (
+                    <div key={license.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{license.customerName}</span>
+                          {license.active ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-500" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          ID: {license.customerId} • Ablauf: {formatDate(license.expiresAt)}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-mono">
+                          {license.key.substring(0, 50)}...
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(license.key)}
+                        >
+                          <Copy className="h-4 w-4 mr-1" />
+                          Kopieren
+                        </Button>
+                      </div>
                     </div>
-                    <div>
-                      <Label className="text-muted-foreground">Kundenname</Label>
-                      <p className="font-medium">{licenseStatus.customerName}</p>
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground">Ablaufdatum</Label>
-                      <p className="font-medium">{formatDate(licenseStatus.expiresAt || '')}</p>
-                    </div>
-                    <div>
-                      <Label className="text-muted-foreground">Benutzer</Label>
-                      <p className="font-medium">{licenseStatus.currentUsers} / {licenseStatus.maxUsers}</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <XCircle className="h-5 w-5 text-red-500" />
-                  <span>Keine aktive Lizenz</span>
+                <p className="text-muted-foreground">Keine Lizenzen vorhanden</p>
+              )}
+
+              {licenseStatus?.activeLicense && (
+                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <h4 className="font-medium text-green-800">Aktive Lizenz</h4>
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Kunde:</span>{' '}
+                      <span className="font-medium">{licenseStatus.activeLicense.customerName}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Benutzer:</span>{' '}
+                      <span className="font-medium">{licenseStatus.currentUsers} / {licenseStatus.activeLicense.maxUsers}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Ablauf:</span>{' '}
+                      <span className="font-medium">{formatDate(licenseStatus.activeLicense.expiresAt)}</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -236,9 +263,9 @@ export default function AdminLicensesPage() {
                 </h4>
                 <ol className="mt-2 text-sm text-blue-800 list-decimal list-inside space-y-1">
                   <li>Erstellen Sie einen Lizenzschlüssel für Ihren Kunden</li>
-                  <li>Kopieren Sie den Schlüssel</li>
+                  <li>Der Schlüssel wird automatisch in der Datenbank gespeichert</li>
+                  <li>Kopieren Sie den Schlüssel für Ihren Kunden</li>
                   <li>Der Kunde gibt den Schlüssel im Setup-Wizard ein</li>
-                  <li>Die Lizenz wird automatisch aktiviert</li>
                 </ol>
               </div>
             </CardContent>

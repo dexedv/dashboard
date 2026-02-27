@@ -88,26 +88,41 @@ export default async function licenseRoutes(server: FastifyInstance) {
       throw new Error('Nur Administratoren können diese Funktion nutzen');
     }
 
-    const license = await prisma.license.findFirst({
-      where: { active: true },
+    // Get all licenses
+    const licenses = await prisma.license.findMany({
       orderBy: { createdAt: 'desc' },
     });
-
-    if (!license) {
-      return { active: false };
-    }
 
     // Count current users
     const userCount = await prisma.user.count();
 
+    // Get active license
+    const activeLicense = licenses.find(l => l.active);
+
+    if (!activeLicense) {
+      return { active: false, licenses: [] };
+    }
+
     return {
       active: true,
-      customerId: license.customerId,
-      customerName: license.customerName,
-      expiresAt: license.expiresAt,
-      maxUsers: license.maxUsers,
       currentUsers: userCount,
-      features: JSON.parse(license.features || '[]'),
+      activeLicense: {
+        customerId: activeLicense.customerId,
+        customerName: activeLicense.customerName,
+        expiresAt: activeLicense.expiresAt,
+        maxUsers: activeLicense.maxUsers,
+        features: JSON.parse(activeLicense.features || '[]'),
+      },
+      licenses: licenses.map(l => ({
+        id: l.id,
+        key: l.key,
+        customerId: l.customerId,
+        customerName: l.customerName,
+        expiresAt: l.expiresAt,
+        maxUsers: l.maxUsers,
+        active: l.active,
+        createdAt: l.createdAt,
+      })),
     };
   });
 
@@ -138,6 +153,19 @@ export default async function licenseRoutes(server: FastifyInstance) {
     };
 
     const licenseKey = encrypt(JSON.stringify(data));
+
+    // Save license to database immediately
+    await prisma.license.create({
+      data: {
+        key: licenseKey,
+        customerId: data.customerId,
+        customerName: data.customerName,
+        expiresAt: new Date(data.expiresAt),
+        maxUsers: data.maxUsers,
+        features: JSON.stringify(data.features),
+        active: true,
+      },
+    });
 
     return {
       success: true,

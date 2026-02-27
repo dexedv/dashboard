@@ -733,12 +733,24 @@ class ApiClient {
   async getLicenseStatus() {
     return this.request<{
       active: boolean;
-      customerId?: string;
-      customerName?: string;
-      expiresAt?: string;
-      maxUsers?: number;
       currentUsers?: number;
-      features?: string[];
+      activeLicense?: {
+        customerId: string;
+        customerName: string;
+        expiresAt: string;
+        maxUsers: number;
+        features: string[];
+      };
+      licenses: Array<{
+        id: string;
+        key: string;
+        customerId: string;
+        customerName: string;
+        expiresAt: string;
+        maxUsers: number;
+        active: boolean;
+        createdAt: string;
+      }>;
     }>('/license/status');
   }
 

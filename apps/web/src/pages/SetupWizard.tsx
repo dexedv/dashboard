@@ -65,7 +65,7 @@ export default function SetupWizard() {
       }
 
       // Try to validate via API
-      const response = await fetch(`${API_BASE}/license/validate?key=${encodeURIComponent(licenseKey)}`);
+      const response = await fetch(`${API_BASE}/api/license/validate?key=${encodeURIComponent(licenseKey)}`);
       const data = await response.json();
 
       if (data.valid) {

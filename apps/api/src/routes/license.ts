@@ -31,7 +31,14 @@ export default async function licenseRoutes(server: FastifyInstance) {
     }
 
     try {
-      const decoded = decrypt(licenseKey);
+      // Decode the license key
+      let decoded;
+      try {
+        decoded = Buffer.from(licenseKey, 'base64').toString('utf-8');
+      } catch {
+        return { valid: false, error: 'Ungültiges Lizenzschlüsselformat' };
+      }
+
       const data: LicenseData = JSON.parse(decoded);
 
       // Check if expired
@@ -40,27 +47,30 @@ export default async function licenseRoutes(server: FastifyInstance) {
         return { valid: false, error: 'Lizenz abgelaufen' };
       }
 
-      // Check license in database
-      const license = await prisma.license.findFirst({
-        where: {
-          key: licenseKey,
-          active: true,
-        },
-      });
-
-      if (!license) {
-        // Create new license record
-        await prisma.license.create({
-          data: {
-            key: licenseKey,
-            customerId: data.customerId,
-            customerName: data.customerName,
-            expiresAt: new Date(data.expiresAt),
-            maxUsers: data.maxUsers,
-            features: JSON.stringify(data.features),
-            active: true,
-          },
+      // Try to save to database (optional - if DB is not available, still allow)
+      try {
+        // Check if already exists
+        const existing = await prisma.license.findFirst({
+          where: { key: licenseKey },
         });
+
+        if (!existing) {
+          // Create new license record
+          await prisma.license.create({
+            data: {
+              key: licenseKey,
+              customerId: data.customerId,
+              customerName: data.customerName,
+              expiresAt: new Date(data.expiresAt),
+              maxUsers: data.maxUsers,
+              features: JSON.stringify(data.features),
+              active: true,
+            },
+          });
+        }
+      } catch (dbError) {
+        // Continue even if database save fails
+        console.log('Could not save to database:', dbError);
       }
 
       return {

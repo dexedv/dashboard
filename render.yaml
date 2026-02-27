@@ -6,7 +6,7 @@ services:
     startCommand: cd apps/api && npx tsx src/index.ts
     envVars:
       - key: DATABASE_URL
-        value: "postgresql://dashboard:W3lvi5ILxgo0FBDZYkhzJSh4VIoc2A93@dpg-d6gsv3i4d50c73ev2v60-a.frankfurt-postgres.render.com/dashboard_p5uv"
+        value: "postgres://dashboard:W3lvi5ILxgo0FBDZYkhzJSh4VIoc2A93@dpg-d6gsv3i4d50c73ev2v60-a.frankfurt-postgres.render.com/dashboard_p5uv"
       - key: JWT_ACCESS_SECRET
         value: "xyz12345678901234567890123456789012"
       - key: JWT_REFRESH_SECRET

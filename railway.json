@@ -2,8 +2,8 @@
   "$schema": "https://railway.app/schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "pnpm install && pnpm run build",
-    "startCommand": "pnpm start"
+    "buildCommand": "cd apps/api && pnpm install && pnpm prisma generate",
+    "startCommand": "cd apps/api && pnpm tsx src/index.ts"
   },
   "deploy": {
     "numReplicas": 1,

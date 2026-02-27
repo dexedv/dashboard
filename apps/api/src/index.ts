@@ -14,7 +14,6 @@ import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import { PrismaClient } from '@prisma/client';
 import pino from 'pino';
-import path from 'path';
 import fs from 'fs';
 
 import { authRoutes } from './routes/auth.js';
@@ -28,14 +27,12 @@ import { spotifyRoutes } from './routes/spotify.js';
 import { emailRoutes } from './routes/email.js';
 import { authMiddleware } from './middleware/auth.js';
 
-const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-});
-
 const prisma = new PrismaClient();
 
 const server = Fastify({
-  logger,
+  logger: {
+    level: process.env.LOG_LEVEL || 'info',
+  },
 });
 
 // Create upload directory
@@ -116,7 +113,7 @@ const start = async () => {
   try {
     const port = parseInt(process.env.PORT || '3001');
     await server.listen({ port, host: '0.0.0.0' });
-    logger.info(`Server running on http://localhost:${port}`);
+    server.log.info(`Server running on http://localhost:${port}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);

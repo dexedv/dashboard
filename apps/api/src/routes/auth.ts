@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import argon2 from 'argon2';
-import { v4 as uuidv4 } from 'crypto';
 import { loginSchema, createUserSchema } from '@dashboard/shared/zod';
 import { authMiddleware } from '../middleware/auth.js';
 

@@ -2,6 +2,7 @@ services:
   - type: web
     name: dashboard-api
     env: node
+    rootDirectory: apps/api
     buildCommand: npm install && npx prisma generate
     startCommand: npx tsx src/index.ts
     envVars:

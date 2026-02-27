@@ -18,6 +18,16 @@ const permissionPrisma = new PrismaClient();
 export async function userRoutes(fastify: FastifyInstance) {
   const prisma = fastify.prisma;
 
+  // Check if users exist (public - for setup wizard)
+  fastify.get('/check', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const count = await prisma.user.count();
+      return { hasUsers: count > 0 };
+    } catch (error) {
+      return { hasUsers: false, error: 'Could not check users' };
+    }
+  });
+
   // List all users (admin only)
   fastify.get('/', { preHandler: [adminMiddleware] }, async (request: FastifyRequest, reply: FastifyReply) => {
     const { q } = request.query as { q?: string };

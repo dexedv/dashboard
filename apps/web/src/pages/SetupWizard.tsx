@@ -115,9 +115,25 @@ export default function SetupWizard() {
       // Ignore - might be local without API
     }
 
-    // Skip admin creation - only admin can create users
-    localStorage.setItem('setupComplete', 'true');
-    setStep('complete');
+    // Check if users already exist in database
+    try {
+      const response = await fetch(`${API_BASE}/api/users/check`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+
+      if (data.hasUsers) {
+        // Users exist, skip admin creation
+        localStorage.setItem('setupComplete', 'true');
+        setStep('complete');
+        return;
+      }
+    } catch (e) {
+      // If we can't check, proceed to admin creation
+    }
+
+    // No users exist yet, show admin creation
+    setStep('admin');
   };
 
   const createAdmin = async () => {

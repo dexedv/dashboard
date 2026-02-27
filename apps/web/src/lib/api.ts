@@ -1,9 +1,5 @@
-// Use localhost for local development, Render URL for production
-// For desktop app, set VITE_API_URL environment variable
-export const API_BASE = import.meta.env.VITE_API_URL ||
-  (window.location.hostname === 'localhost'
-    ? 'http://localhost:3001'
-    : 'https://dashboard-iio4.onrender.com');
+// Use Render API by default for desktop app
+export const API_BASE = 'https://dashboard-iio4.onrender.com';
 
 interface ApiResponse<T> {
   success: boolean;

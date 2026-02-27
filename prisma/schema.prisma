@@ -179,3 +179,53 @@ model EmailAccount {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+// WhatsApp Models
+model WhatsAppConversation {
+  id              String   @id @default(uuid())
+  phoneNumber     String
+  name            String?
+  lastMessage     String?
+  lastMessageAt   DateTime?
+  unreadCount     Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  messages WhatsAppMessage[]
+}
+
+model WhatsAppMessage {
+  id             String   @id @default(uuid())
+  conversationId String
+  messageId      String?  // WhatsApp message ID
+  fromMe         Boolean
+  body           String
+  status         String   @default("sent") // sent, delivered, read, failed
+  timestamp       DateTime
+  createdAt      DateTime @default(now())
+
+  conversation WhatsAppConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model WhatsAppConfig {
+  id           String   @id @default(uuid())
+  phoneNumberId String  @unique
+  accessToken  String
+  businessId   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// License Model
+model License {
+  id           String   @id @default(uuid())
+  key          String   @unique
+  customerId   String
+  customerName String
+  expiresAt    DateTime
+  maxUsers     Int      @default(5)
+  features     String   @default("[]") // JSON array as string
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

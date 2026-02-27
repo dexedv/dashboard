@@ -178,7 +178,7 @@ export async function userRoutes(fastify: FastifyInstance) {
     return { success: true, data: user };
   });
 
-  // Delete user (deactivate - admin only)
+  // Delete user (admin only)
   fastify.delete('/:id', { preHandler: [adminMiddleware] }, async (request: FastifyRequest<{ Params: UserParams }>, reply: FastifyReply) => {
     const { id } = request.params;
 
@@ -190,10 +190,44 @@ export async function userRoutes(fastify: FastifyInstance) {
       });
     }
 
-    await prisma.user.update({
-      where: { id },
-      data: { active: false },
-    });
+    try {
+      // Delete related records manually
+      await prisma.refreshToken.deleteMany({ where: { userId: id } });
+      await prisma.userPermission.deleteMany({ where: { userId: id } });
+      await prisma.spotifyToken.deleteMany({ where: { userId: id } });
+      await prisma.emailAccount.deleteMany({ where: { userId: id } });
+
+      // Delete user's notes
+      await prisma.note.deleteMany({ where: { userId: id } });
+
+      // Delete user's calendar events
+      await prisma.calendarEvent.deleteMany({ where: { userId: id } });
+
+      // Delete user's files
+      await prisma.file.deleteMany({ where: { ownerUserId: id } });
+
+      // Delete customers and their orders (cascade will handle orders)
+      const customers = await prisma.customer.findMany({ where: { userId: id } });
+      for (const customer of customers) {
+        await prisma.order.deleteMany({ where: { customerId: customer.id } });
+        await prisma.file.deleteMany({ where: { customerId: customer.id } });
+      }
+      await prisma.customer.deleteMany({ where: { userId: id } });
+
+      // Delete orders created by user
+      await prisma.order.deleteMany({ where: { userId: id } });
+
+      // Now delete the user
+      await prisma.user.delete({
+        where: { id },
+      });
+    } catch (error: any) {
+      console.error('Delete user error:', error);
+      return reply.status(500).send({
+        success: false,
+        error: 'Fehler beim Löschen des Benutzers: ' + error.message,
+      });
+    }
 
     return { success: true, data: {} };
   });

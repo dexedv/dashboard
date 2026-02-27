@@ -25,6 +25,9 @@ import { orderRoutes } from './routes/orders.js';
 import { fileRoutes } from './routes/files.js';
 import { spotifyRoutes } from './routes/spotify.js';
 import { emailRoutes } from './routes/email.js';
+import permissionRoutes from './routes/permissions.js';
+import whatsappRoutes from './routes/whatsapp.js';
+import licenseRoutes from './routes/license.js';
 import { authMiddleware } from './middleware/auth.js';
 
 const prisma = new PrismaClient();
@@ -106,7 +109,8 @@ server.get('/health', async () => {
     services: {
       api: 'ok',
       database: dbStatus
-    }
+    },
+    version: '1.0.2'
   };
 });
 
@@ -123,7 +127,7 @@ server.get('/api/system/status', {
   return {
     api: 'ok',
     database: dbStatus,
-    version: '1.0.0'
+    version: '1.0.2'
   };
 });
 
@@ -137,6 +141,9 @@ await server.register(orderRoutes, { prefix: '/orders' });
 await server.register(fileRoutes, { prefix: '/files' });
 await server.register(spotifyRoutes, { prefix: '/spotify' });
 await server.register(emailRoutes, { prefix: '/email' });
+await server.register(permissionRoutes, { prefix: '/permissions' });
+await server.register(whatsappRoutes, { prefix: '/whatsapp' });
+await server.register(licenseRoutes, { prefix: '/license' });
 
 // Start server
 const start = async () => {

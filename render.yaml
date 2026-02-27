@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: dashboard-api
+    env: node
+    buildCommand: pnpm install && pnpm prisma generate
+    startCommand: pnpm tsx src/index.ts
+    envVars:
+      - key: DATABASE_URL
+        value: "file:./data/dashboard.db"
+      - key: JWT_ACCESS_SECRET
+        value: "xyz12345678901234567890123456789012"
+      - key: JWT_REFRESH_SECRET
+        value: "xyz12345678901234567890123456789012"
+      - key: ARGON2_SECRET
+        value: "argon2secret123"
+      - key: PORT
+        value: "3001"

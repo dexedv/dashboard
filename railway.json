@@ -2,8 +2,8 @@
   "$schema": "https://railway.app/schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm install && npx prisma generate && npm run build",
-    "startCommand": "npm start"
+    "buildCommand": "pnpm install && pnpm run build",
+    "startCommand": "pnpm start"
   },
   "deploy": {
     "numReplicas": 1,

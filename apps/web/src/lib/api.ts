@@ -1,3 +1,4 @@
+// Use localhost for local development
 export const API_BASE = 'http://localhost:3001';
 
 interface ApiResponse<T> {
@@ -589,25 +590,26 @@ class ApiClient {
 
   // Permissions
   async getPermissions() {
-    return this.request<{
-      all: Array<{ id: string; name: string; description: string; category: string }>;
-      grouped: Record<string, Array<{ id: string; name: string; description: string; category: string }>>;
-    }>('/users/permissions');
+    return this.request<Record<string, Array<{ id: string; name: string; description: string; category: string }>>>('/permissions');
   }
 
   async getUserPermissions(userId: string) {
-    return this.request<Array<{ id: string; name: string; description: string; category: string }>>(`/users/${userId}/permissions`);
+    return this.request<string[]>(`/permissions/user/${userId}`);
   }
 
-  async setUserPermissions(userId: string, permissions: string[]) {
-    return this.request<Array<{ id: string; name: string; description: string; category: string }>>(`/users/${userId}/permissions`, {
+  async setUserPermissions(userId: string, permissionIds: string[]) {
+    return this.request(`/permissions/user/${userId}`, {
       method: 'POST',
-      body: JSON.stringify({ permissions }),
+      body: JSON.stringify({ permissionIds }),
     });
   }
 
   async getMyPermissions() {
-    return this.request<Array<{ id: string; name: string; description: string; category: string }>>('/users/me/permissions');
+    const user = await this.request<{ id: string }>('/auth/me');
+    if (user.success && user.data) {
+      return this.getUserPermissions(user.data.id);
+    }
+    return { success: false, data: [], error: 'User not found' };
   }
 
   // Email
@@ -710,6 +712,98 @@ class ApiClient {
     return this.request<{ connected: boolean }>('/email/test', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  // License
+  async validateLicense(key: string) {
+    return this.request<{
+      valid: boolean;
+      data?: {
+        customerId: string;
+        customerName: string;
+        expiresAt: string;
+        maxUsers: number;
+        features: string[];
+      };
+      error?: string;
+    }>(`/license/validate?key=${encodeURIComponent(key)}`);
+  }
+
+  async getLicenseStatus() {
+    return this.request<{
+      active: boolean;
+      customerId?: string;
+      customerName?: string;
+      expiresAt?: string;
+      maxUsers?: number;
+      currentUsers?: number;
+      features?: string[];
+    }>('/license/status');
+  }
+
+  async generateLicense(data: {
+    customerId: string;
+    customerName: string;
+    expiresAt: string;
+    maxUsers: number;
+    features: string[];
+  }) {
+    return this.request<{ success: boolean; licenseKey: string }>('/license/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // WhatsApp
+  async getWhatsAppConfig() {
+    return this.request<{
+      phoneNumberId: string;
+      businessId: string | null;
+    } | null>('/whatsapp/config');
+  }
+
+  async setWhatsAppConfig(data: {
+    phoneNumberId: string;
+    accessToken: string;
+    businessId?: string;
+  }) {
+    return this.request('/whatsapp/config', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getWhatsAppConversations() {
+    return this.request<Array<{
+      id: string;
+      phoneNumber: string;
+      name: string | null;
+      lastMessage: string | null;
+      lastMessageAt: Date | null;
+      unreadCount: number;
+    }>>('/whatsapp/conversations');
+  }
+
+  async getWhatsAppConversation(conversationId: string) {
+    return this.request<{
+      id: string;
+      phoneNumber: string;
+      name: string | null;
+      messages: Array<{
+        id: string;
+        fromMe: boolean;
+        body: string;
+        status: string;
+        timestamp: Date;
+      }>;
+    }>(`/whatsapp/conversations/${conversationId}`);
+  }
+
+  async sendWhatsAppMessage(phoneNumber: string, message: string) {
+    return this.request<{ messageId: string }>('/whatsapp/messages/send', {
+      method: 'POST',
+      body: JSON.stringify({ phoneNumber, message }),
     });
   }
 }

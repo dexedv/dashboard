@@ -24,7 +24,9 @@ import {
   Moon,
   User,
   Shield,
+  Key,
   Mail,
+  MessageCircle,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -38,6 +40,7 @@ const navigation = [
   { name: 'Dateien', href: '/app/files', icon: Folder },
   { name: 'E-Mail', href: '/app/email', icon: Mail },
   { name: 'Spotify', href: '/app/spotify', icon: Music },
+  { name: 'WhatsApp', href: '/app/whatsapp', icon: MessageCircle },
 ];
 
 export default function AppLayout() {
@@ -161,6 +164,19 @@ export default function AppLayout() {
                   <Shield className="h-5 w-5" />
                   Berechtigungen
                 </Link>
+                <Link
+                  to="/app/admin/licenses"
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+                    location.pathname === '/app/admin/licenses'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                      : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Key className="h-5 w-5" />
+                  Lizenzen
+                </Link>
               </div>
             )}
           </nav>
@@ -216,6 +232,18 @@ export default function AppLayout() {
               >
                 <Shield className="h-5 w-5" />
                 Berechtigungen
+              </Link>
+              <Link
+                to="/app/admin/licenses"
+                className={cn(
+                  'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+                  location.pathname === '/app/admin/licenses'
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                )}
+              >
+                <Key className="h-5 w-5" />
+                Lizenzen
               </Link>
             </div>
           )}

@@ -13,9 +13,12 @@ import FilesPage from './pages/FilesPage';
 import SpotifyPage from './pages/SpotifyPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminPermissionsPage from './pages/AdminPermissionsPage';
+import AdminLicensesPage from './pages/AdminLicensesPage';
 import EmailPage from './pages/EmailPage';
 import EmployeesPage from './pages/EmployeesPage';
 import EmployeeDetailPage from './pages/EmployeeDetailPage';
+import WhatsAppPage from './pages/WhatsAppPage';
+import SetupWizard from './pages/SetupWizard';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -36,10 +39,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  // Check if setup is complete
+  const setupComplete = typeof window !== 'undefined' && localStorage.getItem('setupComplete');
+
   return (
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/setup" element={<SetupWizard />} />
+        {!setupComplete && <Route path="*" element={<Navigate to="/setup" replace />} />}
         <Route
           path="/app"
           element={
@@ -57,10 +65,12 @@ function App() {
           <Route path="files" element={<FilesPage />} />
           <Route path="email" element={<EmailPage />} />
           <Route path="spotify" element={<SpotifyPage />} />
+          <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="employees/:id" element={<EmployeeDetailPage />} />
           <Route path="admin/users" element={<AdminUsersPage />} />
           <Route path="admin/permissions" element={<AdminPermissionsPage />} />
+          <Route path="admin/licenses" element={<AdminLicensesPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/app" replace />} />
       </Routes>
